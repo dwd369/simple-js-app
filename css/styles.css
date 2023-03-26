@@ -1,0 +1,12 @@
+body ul {
+    list-style: none;
+    padding: 0;
+}
+
+.pokemon {
+    background-color: lightgray;
+    border: 0;
+    height:50px;
+    width: 100%;
+    margin: 1px;
+}

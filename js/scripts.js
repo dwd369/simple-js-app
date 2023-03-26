@@ -20,7 +20,6 @@ let pokemonRepository = (function () {
     ];
 
     function add(pokemon) {
-
         // Validation of Pokemon entered by users. 
         //Validation criteria includes if it is an object, if the keys matched, if name is string, if height is number, and if type is array
         if (typeof(pokemon) !== "object") {
@@ -38,20 +37,49 @@ let pokemonRepository = (function () {
             console.log("Pokemon added successfully");
         } 
     }
-
     function getAll() {
         return pokemonList;
     }
 
+    function addListItem(pokemon) {
+        
+        // declare elements to add
+        let element = document.querySelector(".pokemon-list");
+        let listItem = document.createElement("li");
+        let button = document.createElement("button");
+        
+        // setup button
+        button.innerText = pokemon.name;
+        button.classList.add("pokemon");
+        
+    
+        // add button to li and then ul
+        listItem.appendChild(button);
+        element.appendChild(listItem);
+
+        clickToShowDetails(button, pokemon);
+    }
+
+    function showDetails(pokemon) {
+        console.log(pokemon);
+    }
+
+    function clickToShowDetails(forButton, pokemon) {
+        forButton.addEventListener("click", () => {showDetails(pokemon) });
+    }
+
     return {
         getAll: getAll,
-        add: add
+        add: add,
+        addListItem: addListItem
     };
 
 })();
 
+// function to find a Pokemon within the Pokedex
 function findPokemon(inPokedex, pokemonName) {
     let pokemons = [];
+
     inPokedex.forEach(function(pokemon) {
         pokemons.push(pokemon.name);
     });
@@ -72,19 +100,5 @@ let pokedex = pokemonRepository.getAll();
 
 // Write Pokedex to DOM body
 pokedex.forEach(function(pokemon) {
-    
-    // Loop through pokemonList to add the Pokemon's name and height to index.html
-    document.write(`${pokemon.name} (height: ${pokemon.height}, type: ${pokemon.types})`);
-
-    // Check if the Pokemon's height is above 1.5 meters. If true, indicate that it's a larger Pokemon
-    if (pokemon.height >= 1.5) {
-        document.write(" - Wow, that's big!");
-    }
-    
-    // Add line break in between
-    document.write("<br/>");
+    pokemonRepository.addListItem(pokemon);
 });
-
-
-let abc = findPokemon(pokedex,"Bulbasaur");
-document.write(abc);
