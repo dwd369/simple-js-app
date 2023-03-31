@@ -1,46 +1,22 @@
 let pokemonRepository = (function () {
 
     // declare pokemonList array
-    let pokemonList = [
-        {
-            name: "Bulbasaur",
-            height: 0.7,
-            types: ["Grass"," Poison"]
-        },
-        {
-            name: "Ivysaur",
-            height: 1,
-            types: ["Grass"," Poison"]
-        },
-        {
-            name: "Venusaur",
-            height: 2,
-            types: ["Grass"," Poison"]
-        }
-    ];
+    let pokemonList = [];
+    let apiUrl = 'https://pokeapi.co/api/v2/pokemon/?limit=150';
 
+    // function to add a Pokemon to the pokemonList
     function add(pokemon) {
-        // Validation of Pokemon entered by users. 
-        //Validation criteria includes if it is an object, if the keys matched, if name is string, if height is number, and if type is array
-        if (typeof(pokemon) !== "object") {
-            console.log("This is not a valid Pokemon, please try again.");
-        } else if (!(Object.keys(pokemonList[0]).every(key => key in pokemon))) {
-            console.log("Please provide the right keys and values for adding a new pokemon.")
-        } else if (typeof(pokemon.name) !== "string") {
-            console.log("The name for the Pokemon is not a string, please try again.");
-        } else if (typeof(pokemon.height) !== "number") {
-            console.log("The height you entered for the Pokemon is not a number, please try again.");
-        } else if (!(Array.isArray(pokemon.types))) {
-            console.log("The type(s) you entered for the Pokemon is not an array, please try again.");
-        } else {
-            pokemonList.push(pokemon);
-            console.log("Pokemon added successfully");
-        } 
+
+        pokemonList.push(pokemon);
+        console.log("Pokemon added successfully")
     }
+
+    // function to return the list of pokemonList
     function getAll() {
         return pokemonList;
     }
 
+    // function to write the pokemons in the pokemonlist to the DOM as a button
     function addListItem(pokemon) {
         
         // declare elements to add
@@ -60,17 +36,72 @@ let pokemonRepository = (function () {
         clickToShowDetails(button, pokemon);
     }
 
+    // function to log pokemon details
     function showDetails(pokemon) {
-        console.log(pokemon);
+        loadDetails(pokemon).then(function () {
+            console.log(pokemon);
+        })
     }
 
+    // function to show details when user clicks
     function clickToShowDetails(forButton, pokemon) {
         forButton.addEventListener("click", () => {showDetails(pokemon) });
     }
 
+    // function 
+    function loadList() {
+
+        return fetch(apiUrl).then(function (response) {
+            return response.json();
+        }).then(function (json) {
+            json.results.forEach(function (item) {
+                let pokemon = {
+                    name: item.name,
+                    detailsUrl: item.url
+                };
+                add(pokemon);
+            });
+        }).catch(function (e) {
+            console.error(e);
+        })
+    }
+
+    function loadDetails(item) {
+
+        let url = item.detailsUrl;
+
+
+        return fetch(url).then(function (response) {
+            return response.json();
+        }).then(function (details) {
+            // Now we add the details to the item
+            item.imageUrl = details.sprites.front_default;
+            item.height = details.height;
+            item.types = details.types;
+        }).catch(function (e) {
+            console.error(e);
+        });
+      }
+
+    //   function showLoadingMessage() {
+    //     let body = document.querySelector("body");
+    //     let message = document.createElement("p")
+    //     message.innerHTML = "The Pokedex is loading"
+    //     body.appendChild(message);
+    //   }
+
+    //   function hideLoadingMessage() {
+    //     let body = document.querySelector("body");
+    //     let message = body.lastElementChild;
+    //     console.log(message);
+    //     console.log(message.parentElement);
+    //   }
+
     return {
         getAll: getAll,
         add: add,
+        loadList: loadList,
+        loadDetails: loadDetails,
         addListItem: addListItem
     };
 
@@ -93,12 +124,9 @@ function findPokemon(inPokedex, pokemonName) {
     }
 }
 
-
-// Retrieve pokemonList from pokemonRepository
-let pokedex = pokemonRepository.getAll();
-
-
-// Write Pokedex to DOM body
-pokedex.forEach(function(pokemon) {
-    pokemonRepository.addListItem(pokemon);
-});
+pokemonRepository.loadList().then(function() {
+    // now the data is loaded!
+    pokemonRepository.getAll().forEach(function(pokemon){
+        pokemonRepository.addListItem(pokemon);
+    })
+})
