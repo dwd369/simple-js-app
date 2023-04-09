@@ -3,6 +3,7 @@ let pokemonRepository = (function () {
     // declare pokemonList array
     let pokemonList = [];
     let apiUrl = 'https://pokeapi.co/api/v2/pokemon/?limit=150';
+    let single = 'single';
 
     // function to add a Pokemon to the pokemonList
     function add(pokemon) {
